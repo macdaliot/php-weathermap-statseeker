@@ -17,9 +17,9 @@ E.g. `/home/user1/ss-wm`
 ## Configuration
 There are 4 files to be edited:
 
-* ss-wm.cfg
-* ss-wm.sh
-* ss-wm-api.php
+* etc/ss-wm.cfg
+* bin/ss-wm.sh
+* bin/ss-wm-api.php
 * lib/WeatherMapDataSource_statseeker.php
 
 ### ss-wm.cfg
@@ -28,17 +28,17 @@ Parameter | Value
 ---- | ----|
 WEATHERMAP_BIN | Path to the Weathermap binary. E.g. ```/var/www/html/weathermap/weathermap```.
 WEATHERMAP_CONF|Path to the Weathermap configuration file, this is created when you build your weathermap using the editor.php. E.g. ```/var/www/html/configs/statseeker.conf```.
-WEATHERMAP_HTML|Path to the Weathermap html file. E.g. ```/var/www/html/weathermap/index.html```.
-WEATHERMAP_IMG|Name of the Weathermap image (this is the image displayed when viewing your weathermap). E.g. ```/var/www/html/weathermap/statseeker.png```.
+WEATHERMAP_HTML|Path, relative to the weathermap binary, to the Weathermap html file. E.g. ```index.html```.
+WEATHERMAP_IMG|Path, relative to the weathermap binary, to the Weathermap image (this is the image displayed when viewing your weathermap). E.g. ```statseeker.png```.
 TMP_DIR|Path for temporary storage of graphs during processing. E.g. ```/tmp/statseeker/``` **Note:** the contents of this folder will be edited by the web server agent, typically this is *"www-data"*. For this to occur, the TMP_DIR directory permissions may need to be updated to assign ownership of the directory to this user agent, and to assign read/write access to the folder and its files to this user agent.
 WEB_DIR | Root of the web tree where the weathermap exists. E.g. ```/var/www/html/weathermap```.
 GRAPH_DIR | Final location of the popup graphs. E.g. ```/var/www/html/weathermap/graph```.
 INSTALL_DIR | Directory where your ss-wm package is installed. E.g. ```/home/user1/ss-wm```.
 USERNAME | The Statseeker user account employed to collect the data for the weathermap. The associated password will be kept in clear text in the config file so we suggest that you create a Statseeker user account specifically for this purpose. **Note:** ensure that the user account has access to the interfaces that will be used to populate the weathermap.
 PASSWORD | Password of the Statseeker user account employed to collect the data for the weathermap.
-GROUP | Statseeker group name. Create a group in Statseeker and populate it with the interfaces that you want to monitor on the weathermap. **Note:** to ensure the best performance, restrict the group contents to only contain those interfaces that are to be used to populate the weathermap.
+GROUP | Statseeker group name. **Note:** to ensure the best performance, restrict the group contents to only contain those interfaces that are to be used to populate the weathermap.
 STATSEEKER | Hostname or IP address of the Statseeker server.
-URL | URL of the **Interfaces -> Top Utilization Graphs** report for the Statseeker group specified above. To get this, go to the Statseeker NIM console and select the group specified above, then run the report and copy the URL.
+URL | URL of the **Interfaces -> Top Utilization Graphs** report. To get this, run the report from Statseeker, and copy the URL.
 
 E.g.: 
 ```
@@ -125,7 +125,7 @@ While configuring Weathermap, you can run a test to confirm that data/graphs are
 1. Change to your Weathermap server web directory.
 E.g. `# cd /var/www/html/weathermap`
 2. Manually run the ss-wm.sh script as the *www-data* user with
-`#sudo -u www-data {INSTALL_DIR}/ss-wm.sh`, as *INSTALL_DIR* is specified in ss-wm.cfg
+`#sudo -u www-data {INSTALL_DIR}/ss-wm.sh`
 E.g. `#sudo -u www-data /home/user1/ss-wm/ss-wm.sh`
 
 This script will attempt to:
@@ -138,9 +138,6 @@ This script will attempt to:
 
 Any errors encountered will be displayed in the CLI.
 
-**Note:** the shell script can also be run in 'map-only' mode, where interface utilization statistics are collected, but on-hover graphs are not. This mode can be enabled with the 'maponly' parameter.
-E.g. `#sudo -u www-data /home/user1/ss-wm/ss-wm.sh maponly`
-
 ## Crontab
 For the map and graphs to stay current by periodically retrieving up-to-date data, an entry must be placed in the weathermap servers crontab. 
 - Edit cron with the following command as the root user, where <username> is the user that the web server runs as (typically www-data)
@@ -149,8 +146,6 @@ For the map and graphs to stay current by periodically retrieving up-to-date dat
 `*/5 * * * * <path_to_ss-wm.sh> > /dev/null 2>&1`
 E.g. `*/5 * * * * home/user1/ss-wm/ss-wm.sh > /dev/null 2>&1`
 
-**Note:** the cron can be configured to run the shell script 'map-only' mode, where interface utilization statistics are collected, but on-hover graphs are not. This mode can be enabled with the 'maponly' parameter.
-E.g. `*/5 * * * * home/user1/ss-wm/ss-wm.sh maponly > /dev/null 2>&1`
 
 ## Version History
 

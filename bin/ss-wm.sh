@@ -3,7 +3,7 @@
 # This script reads the config file "ss-wm.cfg", then wget's a report and graphs for the popups for weathermap.
 # files are left $tmpdir/graph/
 
-# VERSION 0.2.5
+# VERSION 0.3.1
 
 CONFIG_FILE=""
 
@@ -137,7 +137,7 @@ fi
 # Build short url, since the long url makes a file name that's too long.
 #
 
-shorturl="$HTTP://${config[STATSEEKER]}/cgi/nimc02?report=${cgiopts['report']}&group=$GROUPID&tfc_fav=${cgiopts['tfc_fav']}&tz=${cgiopts['tz']}&tfc=${cgiopts['tfc']}&top_n=${cgiopts['top_n']}"
+shorturl="$HTTPS://${config[STATSEEKER]}/cgi/nimc02?report=${cgiopts['report']}&group=$GROUPID&tfc_fav=${cgiopts['tfc_fav']}&tz=${cgiopts['tz']}&tfc=${cgiopts['tfc']}&top_n=${cgiopts['top_n']}"
 
 config[URL]=${shorturl}
 
@@ -145,7 +145,7 @@ echo "WGET TopN Report"
 #
 # Get the report / images.
 #
-#echo ${config[URL]} | wget  --recursive   -i - --user=${config[USERNAME]} --password=${config[PASSWORD]} -P ${config[TMP_DIR]} -nd -nv -q    # This line has wget debugs, use this if having troubles.
+
 echo ${config[URL]} | wget  --recursive --no-check-certificate   -i - --user=${config[USERNAME]} --password=${config[PASSWORD]} -P ${config[TMP_DIR]} -nd -q
 
 #
@@ -158,16 +158,8 @@ for i in ${config[TMP_DIR]}/util*.png ; do mv "$i" "${config[TMP_DIR]}/graph/`ec
 
 php ${config[INSTALL_DIR]}/bin/ss-wm-api.php -r
 
-#
-# cleanup the junk files from the wget that we don't need.
-#
-find ${config[TMP_DIR]} -maxdepth 1 -type f  -exec rm {} \;
-
-
-#./weathermap --config configs/stat2.conf --output=statseeker.png --htmloutput=index.html 
 
 WMCMD="${config[WEATHERMAP_BIN]} --config ${config[WEATHERMAP_CONF]} --output=${config[WEATHERMAP_IMG]} --htmloutput ${config[WEATHERMAP_HTML]}"
-#mv ${config[INSTALL_DIR]}/${config[WEATHERMAP_IMG]} ${config[WEB_DIR]}/
 
 echo "Calling Weathermap";
 echo $WMCMD;
@@ -181,3 +173,7 @@ if command -v restorecon >/dev/null 2>&1; then
    restorecon ${config[WEB_DIR]}/${config[WEATHERMAP_IMG]} 
 fi
 
+#
+# cleanup the junk files from the wget that we don't need.
+#
+find ${config[TMP_DIR]} -maxdepth 1 -type f  -exec rm {} \;

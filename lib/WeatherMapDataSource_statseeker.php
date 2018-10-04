@@ -1,10 +1,9 @@
 <?php
 //
-// This is a sample 'empty' DS plugin, in case you want to make your own.
-// it's what the fping plugin looked like before I added the code in.
+// This is based on the a sample 'empty' DS plugin.
 //
 // Pluggable datasource for PHP Weathermap 0.9
-// - return a live ping result
+// - return a statseeker data 
 
 // TARGET statseeker:devicename:ifName:DataType
 
@@ -29,7 +28,7 @@ function json_decode_nice($cfg,$json, $assoc = FALSE){
     return json_decode($json,$assoc); 
 }
 
-function get_ss_data($cfg,$device,$port,$dtype) {
+function get_ss_data_old($cfg,$device,$port,$dtype) {
 
         global $CONFIG_FILE;
 	$cfg = parse_ini_file($CONFIG_FILE);
@@ -69,10 +68,37 @@ EOD;
        
 	if(!isset($res["result"][0])) {
 		print "NO DATA FOR URL:\n$url\n\n";
-		var_dump($res["result"]);
 	}
 	return array(intval($res["result"][0]["Rx$dtype"]["max"]), intval($res["result"][0]["Tx$dtype"]["max"]));
 }
+
+
+
+function get_ss_data($cfg,$device,$port,$dtype) {
+        global $CONFIG_FILE;
+    $cfg = parse_ini_file($CONFIG_FILE);
+
+    if($dtype != "Bps" && $dtype != "Util") {
+        print "Statseeker: Invalid Data type $dtyle.    Valid types (Bps,Util)\n";
+    }
+
+    $datafile = fopen("{$cfg["TMP_DIR"]}/ss-data-cache.csv.tmp","r");
+    while(($data = fgetcsv($datafile,1000,",")) !== FALSE) {
+        $num = count($data);
+        print "$device,$data[0],$port,$data[1],$data[2],$data[3],$data[4],$data[5]\n";
+
+        if($device==$data[0] and $port==$data[1]) {
+            if($dtype == "Util" ) {
+                return array(intval($data[2]),intval($data[3]));
+            }
+            if($dtype == "Bps" ) {
+                return array(intval($data[4]),intval($data[5]));
+            }
+        }
+    }
+
+}
+
 
 
 class WeatherMapDataSource_statseeker extends WeatherMapDataSource {
